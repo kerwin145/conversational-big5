@@ -1,11 +1,23 @@
 import google.generativeai as genai
 import csv
 import time
+import re
+
 
 API_KEY = "" #api key to put
+START, STOP = 1,5 
+
+outfile = open('train.csv', mode='a', newline='', encoding='utf-8')
+fieldnames = ["idx", "textOPN", "textCON", "textEXT", "textAGR", "textNEU", "cOPN", "cCON", "cEXT", "cAGR", "cNEU"]
+writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+if outfile.tell() == 0: #writes the header only if file is empty
+    writer.writeheader()
+
+pattern = r"(Openness|Conscientiousness|Extraversion|Agreeableness|Neuroticism)\n+(.*?)(?=\n+(?:Openness|Conscientiousness|Extraversion|Agreeableness|Neuroticism)|\Z)"
+
+
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-print("sending request")
 
 def createPrompt(TEXT, cOPN, cCON, cEXT, cAGR, cNEU):
     return f'''I will give you five questions, one for each category of the Big-5. I want you to answer these at about a paragraph length (3-5 sentences), attempting to address the question at hand. The important thing is that I will also give you an essay written by a person, and the Big-5 scores of that person in a yes/no format. I want you to use the essay and Big-5 scores as additional context/guidance to pretend to be that person in giving your responses to my first five questions. Also important: your output should include only the category of the question as a header followed by the answer, without any other formatting. For example: 
@@ -20,7 +32,7 @@ Please keep this person's Big 5 scores in mind:
  Openness-{cOPN}, Conscientiousness-{cCON}, Extraversion-{cEXT}, Agreeableness-{cAGR}, Neuroticism-{cNEU} 
 
 Here are the questions: 
-Openness to Experience: Describe a time when you tried something completely new—whether it was a different activity, way of thinking, or environment. What motivated you to try it, and how did you feel about the experience afterward? 
+Openness: Describe a time when you tried something completely new—whether it was a different activity, way of thinking, or environment. What motivated you to try it, and how did you feel about the experience afterward? 
 Conscientiousness: Think of a goal you set for yourself that required sustained effort over time. How did you manage your time and resources to stay on track, and what strategies helped you stay committed, even when challenges came up? What did you find challenging or rewarding about the experience? 
 Extraversion: Recall a memorable social experience that either energized you or left you feeling drained. What do you think made the interaction fulfilling or draining? How did it shape your understanding of your social preferences or needs? 
 Agreeableness: Describe a situation where you found yourself in disagreement with someone. How did you handle the situation, and what were your priorities in resolving or understanding the conflict? 
@@ -60,16 +72,15 @@ def send_request_with_retry(model, prompt, idx):
 with open('essays.csv', mode='r') as file:
     reader = csv.DictReader(file)  # Automatically uses the first row as column names
 
-    start_idx = 0  # Adjust if resuming from a specific index
-    stop_idx = 1500  # Stop after daily limit
+    stop_idx = 1  # Stop after daily limit
 
     for idx, row in enumerate(reader):
-        if idx < start_idx:
+        if idx < START:
             continue
-        if idx >= stop_idx:
-            print(f"Reached daily limit. Processed up to row {idx}.")
+        if idx >= STOP:
+            print(f"Reached limit. Processed up to row {idx}.")
             break
-
+        print("Sending request")
         # Create the prompt
         prompt = createPrompt(row['TEXT'], row['cOPN'], row['cCON'], row['cEXT'], row['cAGR'], row['cNEU'])
         # Send the request with error checking
@@ -81,5 +92,22 @@ with open('essays.csv', mode='r') as file:
             break
         elif response:
             print(f"Request {idx} completed:")
-            print(response.text)
-
+            text = response.text + "\n"
+            matches = re.findall(pattern, text, re.DOTALL)
+            sections = {header: paragraph.strip() for header, paragraph in matches}
+            if len(sections) != 5 or not all(sections.get(header) for header in ["Openness", "Conscientiousness", "Extraversion", "Agreeableness", "Neuroticism"]):
+                print(f"Bad formatted output at idx {idx}. Saving it in a poor output text file")
+                with open("poor_output.txt", "a") as bad_output_file:
+                        bad_output_file.write(f"Index {idx}:\n{text}\n\n")
+            writer.writerow({'idx': idx, 
+                            "textOPN" : sections["Openness"], 
+                            "textCON" : sections["Conscientiousness"], 
+                            "textEXT" : sections["Extraversion"], 
+                            "textAGR" : sections["Agreeableness"],
+                            "textNEU" : sections["Neuroticism"], 
+                            "cOPN": row["cOPN"],
+                            "cCON": row["cCON"], 
+                            "cEXT": row["cEXT"], 
+                            "cAGR": row["cAGR"], 
+                            "cNEU": row["cNEU"] 
+                        })
