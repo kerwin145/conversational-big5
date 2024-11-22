@@ -5,7 +5,8 @@ import re
 
 
 API_KEY = "" #api key to put
-START, STOP = 1,5 
+START, STOP = 30, 600 
+
 
 outfile = open('train.csv', mode='a', newline='', encoding='utf-8')
 fieldnames = ["idx", "textOPN", "textCON", "textEXT", "textAGR", "textNEU", "cOPN", "cCON", "cEXT", "cAGR", "cNEU"]
@@ -13,7 +14,7 @@ writer = csv.DictWriter(outfile, fieldnames=fieldnames)
 if outfile.tell() == 0: #writes the header only if file is empty
     writer.writeheader()
 
-pattern = r"(Openness|Conscientiousness|Extraversion|Agreeableness|Neuroticism)\n+(.*?)(?=\n+(?:Openness|Conscientiousness|Extraversion|Agreeableness|Neuroticism)|\Z)"
+pattern = r"(Openness|Conscientiousness|Extraversion|Agreeableness|Neuroticism)\s+(.*?)(?=\s+(?:Openness|Conscientiousness|Extraversion|Agreeableness|Neuroticism)|$)"
 
 
 genai.configure(api_key=API_KEY)
@@ -99,6 +100,8 @@ with open('essays.csv', mode='r') as file:
                 print(f"Bad formatted output at idx {idx}. Saving it in a poor output text file")
                 with open("poor_output.txt", "a") as bad_output_file:
                         bad_output_file.write(f"Index {idx}:\n{text}\n\n")
+                        break
+                
             writer.writerow({'idx': idx, 
                             "textOPN" : sections["Openness"], 
                             "textCON" : sections["Conscientiousness"], 
@@ -111,3 +114,4 @@ with open('essays.csv', mode='r') as file:
                             "cAGR": row["cAGR"], 
                             "cNEU": row["cNEU"] 
                         })
+outfile.close()
