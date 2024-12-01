@@ -33,7 +33,7 @@ def main():
         "Openness": "models/Big5_OPN_top_4_training",
         "Conscientiousness": "models/Big5_CON_top_4_training",
         "Extraversion": "models/Big5_EXT_top_4_training",
-        "Agreeableness": "/Users/linlin/Desktop/CSE_354_INTERFACE/Big5_AGR_top_4_training",
+        "Agreeableness": "models/Big5_AGR_top_4_training",
         "Neuroticism": "models/Big5_NEU_top_4_training"
     }
 
@@ -49,13 +49,12 @@ def main():
 
     #questions for the Big-5 Personality Test
     questions = {
-        "Openness": "Describe a time when you tried something completely new. What motivated you, and how did you feel afterward?",
-        "Conscientiousness": "Think of a goal you set for yourself that required sustained effort over time. How did you manage it?",
-        "Extraversion": "Recall a memorable social experience that either energized you or drained you. What made it fulfilling or draining?",
-        "Agreeableness": "Describe a situation where you disagreed with someone. How did you handle it?",
-        "Neuroticism": "Think of a time when you felt particularly stressed or anxious. How did you respond initially, and how did you manage it?"
+        "Openness": "Describe a time when you tried something completely new. What motivated you, and how did you feel afterward? ",
+        "Conscientiousness": "Think of a goal you set for yourself that required sustained effort over time. How did you manage it? ",
+        "Extraversion": "Recall a memorable social experience that either energized you or drained you. What made it fulfilling or draining? ",
+        "Agreeableness": "Describe a situation where you disagreed with someone. How did you handle it? ",
+        "Neuroticism": "Think of a time when you felt particularly stressed or anxious. How did you respond initially, and how did you manage it? "
     }
-
 
     responses = {}  # store user responses for each trait
     for trait, question in questions.items():
@@ -69,10 +68,23 @@ def main():
         model, tokenizer = models[trait]
         
         # tokenize the response for this trait 
-        #inputs = tokenizer.encode(f"{questions[trait]} [SEP] {response}", max_length=400, truncation=True, padding='max_length', return_tensors='pt')
-        inputs = tokenizer(response, return_tensors="pt", padding=True, truncation=True)
-        outputs = model(**inputs) 
+        # inputs = tokenizer(response, return_tensors="pt", padding=True, truncation=True)
+        
+        qa_concat = f"This is a question about {trait}: {questions[trait]} [SEP] {response}"
+        print(qa_concat)
+        encoded_inputs = tokenizer(
+            qa_concat,
+            return_tensors="pt",  # Return PyTorch tensors
+            max_length=400,
+            truncation=True,
+            padding=True
+        )    
 
+        device = next(model.parameters()).device
+        encoded_inputs = {key: value.to(device) for key, value in encoded_inputs.items()}
+        
+        # Get the outputs from the model
+        outputs = model(**encoded_inputs)
         
         # Use softmax to convert logits to probabilities
         softmax_probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
@@ -87,7 +99,7 @@ def main():
         results.append(prediction)
         print(f"Prediction for {trait}: {prediction}")
         print(f"Probability for No: {no_prob:.4f}, Probability for Yes: {yes_prob:.4f}")
-    
+        
 
     # Final result as a vector
     final_result = ",".join(results)
