@@ -1,0 +1,53 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+}
+#title{
+    text-align: center;
+}
+
+#graphs{
+    display: flex;
+    justify-content: space-around;
+    margin: 1rem 2rem;
+}
+
+/* Container styles */
+.container {
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: 4px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Header styles */
+.container h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* Wrapper styles for images and texts */
+.image-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Group styles for individual image-text pairs */
+.image-group {
+    text-align: center;
+}
+
+/* Image styles */
+.image-group img {
+    display: block;
+    width: 318px; /* Adjust image width */
+    height: auto; /* Maintain aspect ratio */
+}
+
+/* Text styles */
+.image-group p {
+    margin-top: 10px;
+    font-size: 16px;
+}
