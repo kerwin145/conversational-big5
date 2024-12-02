@@ -1,10 +1,10 @@
 container = document.querySelector("#graphs")
 
-const OPN = createBlock("Openness (OPN)", ["graphs/OPN_all.png", "graphs/OPN_top.png", "graphs/OPN_frozen.png"], ["All layers: 0.8395", "Top 4: 0.8309", "Fully Frozen: 0.3343"] ) 
-const CON = createBlock("Conscientiousness (CON)", ["graphs/CON_all.png", "graphs/CON_top.png", "graphs/CON_frozen.png"], ["All layers: 0.8841", "Top 4: 0.8903", "Fully Frozen: 0.4097"] ) 
-const EXT = createBlock("Extraversion (EXT)", ["graphs/EXT_all.png", "graphs/EXT_top.png", "graphs/EXT_frozen.png"], ["All layers: 0.8316", "Top 4: 0.825", "Fully Frozen: 0.3837"] ) 
-const AGR = createBlock("Agreeableness (AGR)", ["graphs/AGR_all.png", "graphs/AGR_top.png", "graphs/AGR_frozen.png"], ["All layers: 0.7743", "Top 4: 0.7571", "Fully Frozen: 0.4988"] ) 
-const NEU = createBlock("Neuroticism (NEU)", ["graphs/NEU_all.png", "graphs/NEU_top.png", "graphs/NEU_frozen.png"], ["All layers: 0.7069", "Top 4: 0.6995", "Fully Frozen: 0.3381"] ) 
+const OPN = createBlock("Openness (OPN)", ["graphs/OPN_all.png", "graphs/OPN_top.png", "graphs/OPN_frozen.png"], ["All layers: 0.8414", "Top 4: 0.8381", "Fully Frozen: 0.5076"] ) 
+const CON = createBlock("Conscientiousness (CON)", ["graphs/CON_all.png", "graphs/CON_top.png", "graphs/CON_frozen.png"], ["All layers: 0.9011", "Top 4: 0.9076", "Fully Frozen: 0.6126"] ) 
+const EXT = createBlock("Extraversion (EXT)", ["graphs/EXT_all.png", "graphs/EXT_top.png", "graphs/EXT_frozen.png"], ["All layers: 0.8328", "Top 4: 0.8404", "Fully Frozen: 0.4775"] ) 
+const AGR = createBlock("Agreeableness (AGR)", ["graphs/AGR_all.png", "graphs/AGR_top.png", "graphs/AGR_frozen.png"], ["All layers: 0.7646", "Top 4: 0.7881", "Fully Frozen: 0.3457"] ) 
+const NEU = createBlock("Neuroticism (NEU)", ["graphs/NEU_all.png", "graphs/NEU_top.png", "graphs/NEU_frozen.png"], ["All layers: 0.7198", "Top 4: 0.714", "Fully Frozen: 0.4952"] ) 
 
 container.appendChild(OPN)
 container.appendChild(CON)

@@ -41,25 +41,33 @@ class Interface:
         """
         Tokenize the input using the specific tokenizer for the given trait.
         """
-        # question = self.questionMap[trait]
-        # qa_concat = f"{question} [SEP] {answer}"
-        # tokenizer = self.tokenizers[trait]
-        # encoded_text = tokenizer.encode(qa_concat, max_length=400, truncation=True)
-        # tokens = torch.tensor(encoded_text).unsqueeze(0).to(self.device)  # Batch size of 1
-        
         tokenizer = self.tokenizers[trait]
-        encoded_text = tokenizer.encode(answer, max_length=400, truncation=True)
-        tokens = torch.tensor(encoded_text).unsqueeze(0).to(self.device)  # Batch size of 1
-        return tokens
+        # encoded = tokenizer(
+        #     f"{self.questionMap[trait]} [SEP] {answer}",
+        #     max_length=400,
+        #     truncation=True,
+        #     padding="max_length",
+        #     return_tensors="pt"
+        # )
+        encoded = tokenizer(
+            answer,
+            max_length=400,
+            truncation=True,
+            padding="max_length",
+            return_tensors="pt"
+        )
+        input_ids = encoded["input_ids"].to(self.device)  # Token IDs
+        attention_mask = encoded["attention_mask"].to(self.device)  # Attention mask
+        return input_ids, attention_mask
 
-    def predict(self, trait, tokens):
+    def predict(self, trait, input_ids, attention_mask):
         """
         Perform prediction for the given trait using the corresponding model.
         """
         model = self.models[trait]
         model.eval()
         with torch.no_grad():
-            outputs = model(tokens)
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             logits = outputs.logits
             probabilities = torch.nn.functional.softmax(logits, dim=-1)
             pred = torch.argmax(probabilities, dim=1).item()
@@ -75,8 +83,8 @@ class Interface:
             answer = input("Your response: ")
 
             # Tokenize and predict
-            tokens = self.tokenize_input(trait, answer)
-            prediction, probabilities = self.predict(trait, tokens)
+            input_ids, attention_mask = self.tokenize_input(trait, answer)
+            prediction, probabilities = self.predict(trait, input_ids, attention_mask)
 
             # Display result
             result_text = "Yes" if prediction == 1 else "No"
