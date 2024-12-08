@@ -51,23 +51,9 @@ console.log(result);
 - **Interactive Interface**: Engage in a conversation-like experience for analysis.
 - **Big Five Model**: Focuses on openness, conscientiousness, extraversion, agreeableness, and neuroticism.
 
-## Contributing
-
-We welcome contributions! To contribute, follow these steps:
-
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature/your-feature`.
-3. Commit your changes: `git commit -m "Add your feature"`.
-4. Push to the branch: `git push origin feature/your-feature`.
-5. Submit a pull request.
 
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-## Contact
-
-For questions or feedback, contact:
-
-- **GitHub**: [kerwin145](https://github.com/kerwin145)
 
